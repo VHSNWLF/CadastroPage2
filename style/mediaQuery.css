@@ -9,6 +9,10 @@ Tablet: 769px até 992px
 Desktop: 992px até 1200px
 Grandes telas: acima 12000px
 */
+@media screen and (min-width: 1761) {
+    
+}
+
 
 @media screen and (max-width: 1761px) {
 
