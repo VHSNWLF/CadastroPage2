@@ -1,11 +1,70 @@
+<?php
+/* session_start();
+
+require 'database/config.php';
+
+if ($_SERVER['REQUEST_METHOD'] == "POST"){
+    $username = $_POST['username'];
+    $email = $_POST['email'];
+    $password = $_POST['password'];
+}
+
+    $sql = "SELECT * FROM cl202247.EcoMomentBD_UsuarioWeb WHERE NomeWeb = ? AND EmailWeb = ?";  //Verificar se o utilizador existe
+
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param('ss',$username, $email);  // Bind the parameters with variable
+    $stmt->execute();   // Execute the prepared statement
+
+    $result = $stmt->get_result();
+
+    if($result->num_rows === 1){
+        $row - $result->fetch_assoc();
+
+        if (password_verify( $password , $row["senhaWeb"])) {
+            $_SESSION["loggedin"] = true;
+
+            header('Location: logado.php');
+            exit;
+    }
+}
+else{
+    $error = 'Usuario ou senha incorretos';
+} CODIGO DE LOGIN */
+require_once 'database/config.php';
+
+    if ($_SERVER["REQUEST_METHOD"] == "POST") {
+        $username = $_POST['name'];
+        $email = $_POST['email'];
+        $password = $_POST['password'];
+        $hashed_password = password_hash($password, PASSWORD_DEFAULT);
+    
+        $sql = 'INSERT INTO cl202247.EcoMomentBD_UsuarioWeb (nomeWeb, emailWeb, senhaWeb) values (?, ?, ?)';
+
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param('sss', $username, $email, $password);  // Bind the parameters to the parameter markers
+
+        if($stmt->execute()){
+            echo 'Usuario cadastrado com sucesso';
+        }else{
+            echo 'ERRO: '. $sql. '<br>'. $conn->error;
+        }
+
+        $stmt->close();
+    }
+    $conn->close();
+
+
+?>
+
+
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cadastro Page</title>
-    <link rel="stylesheet" href="style/cadastro-page.css">
-    <link rel="stylesheet" href="style/mediaQuery.css">
+    <link rel="stylesheet" href="styleCadastro/cadastro-page.css">
+    <link rel="stylesheet" href="styleCadastro/mediaQuery.css">
     <link rel="stylesheet" href="https://use.typekit.net/xhc2seb.css">
     
 
@@ -65,7 +124,7 @@
                     </div>
                 </div>
 
-                <form action="#">
+                <form method="post" action="logado.php">
                     <div class="input-group">
 
                         <div class="input-box">
@@ -109,10 +168,11 @@
                               </button>
                               </div>
                         </div>
+
                     </div>
 
                     <div class="btn-entrar">
-                        <button class="button">Entrar</button>
+                        <button class="button" type="submit">CADASTRAR</button>
                     </div>
 
                     <div>
@@ -133,7 +193,6 @@
                       
                 </form>
                 <div class="footer">
-                    <p class="circeB p">Não tem uma conta? <a href="#">Cadastre-se</a></p>
                 </div>
                 <div class="footer-image">
                     <img class="logo2" src="mídia/reciclagem-icone.png" alt="">
