@@ -1,38 +1,45 @@
 <?php
-/* session_start();
 
-require 'database/config.php';
-
-if ($_SERVER['REQUEST_METHOD'] == "POST"){
+require_once 'database/config.php';
+if($_SERVER['REQUEST_METHOD'] == 'GET'){
+    $invalid_msg = "";
+    $username = "";
+    $email = "";  
+    $password = ""; 
+}
+        
+if($_SERVER["REQUEST_METHOD"] == "POST"){
     $username = $_POST['username'];
     $email = $_POST['email'];
     $password = $_POST['password'];
-}
+    if (trim($username) != "" && trim($email) != "" && trim($password) != "") {
+        $hashed_password = password_hash($password, PASSWORD_DEFAULT);
+        $verifica1 = $conn->query("SELECT * FROM cl202247.EcoMomentBD_UsuarioWeb where NomeWeb = '$username'");
+        $verifica2 = $conn->query("SELECT * FROM cl202247.EcoMomentBD_UsuarioWeb where EmailWeb = '$email'");
+        if(mysqli_num_rows($verifica1) == 1){
+            $invalid_msg = "Nome de usuário já existente!";
+        }else if (mysqli_num_rows($verifica2)>= 1){
+            $invalid_msg = "Email já cadastrado!";
+        }else{
+    $sql = 'INSERT INTO cl202247.EcoMomentBD_UsuarioWeb (nomeWeb, emailWeb, senhaWeb) values (?, ?, ?)';
 
-    $sql = "SELECT * FROM cl202247.EcoMomentBD_UsuarioWeb WHERE NomeWeb = ? AND EmailWeb = ?";  //Verificar se o utilizador existe
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param('sss', $username, $email, $password);  // Bind the parameters to the parameter markers
 
-    $stmt = $conn->prepare($sql);
-    $stmt->bind_param('ss',$username, $email);  // Bind the parameters with variable
-    $stmt->execute();   // Execute the prepared statement
-
-    $result = $stmt->get_result();
-
-    if($result->num_rows === 1){
-        $row - $result->fetch_assoc();
-
-        if (password_verify( $password , $row["senhaWeb"])) {
-            $_SESSION["loggedin"] = true;
-
+        if($stmt->execute()){
             header('Location: logado.php');
-            exit;
+        }else{
+            echo '<script>alert("ERRO")</script>';
+        }
+        $stmt->close();
     }
+        }
+    else {
+        $invalid_msg = 'Preencha todos os campos corretamente!';
+    }    
 }
-else{
-    $error = 'Usuario ou senha incorretos';
-} CODIGO DE LOGIN */
 
-
-
+$conn->close();
 ?>
 
 
@@ -103,7 +110,7 @@ else{
                     </div>
                 </div>
 
-                <form method="post" action="cadastro.php">
+                <form method="post">
                     <div class="input-group">
 
                         <div class="input-box">
@@ -112,7 +119,7 @@ else{
                                 <label for="username" class="labelforsearch">
                                     <img id="icon" src="mídia/do-utilizador.png" alt="">
                                 </label>
-                                <input type="text" name="username" class="input" id="username">
+                                <input type="text" name="username" class="input" id="username" required>
                             <div class="border"></div>
                             <button class="micButton">
                                 <img id="icon" src="midias/danger.png" alt="">
@@ -126,7 +133,7 @@ else{
                                 <label for="email" class="labelforsearch">
                                     <img id="icon" src="mídia/email.png" alt="">
                                 </label>
-                                <input type="text" name="email" class="input" id="email">
+                                <input type="text" name="email" class="input" id="email" required>
                             <div class="border"></div>
                             <button class="micButton">
                                 <img id="icon" src="midias/danger.png" alt="">
@@ -140,16 +147,15 @@ else{
                                 <label for="password" class="labelforsearch">
                                     <img id="icon" src="mídia/padlock.png" alt="">
                                 </label>
-                                <input type="password" name="password" class="input" id="password">
+                                <input type="password" name="password" class="input" id="password" required>
                               <div class="border"></div>
                               <button class="micButton">
                                 <img id="icon" src="midias/danger.png" alt="">
                               </button>
                               </div>
                         </div>
-
+                    <span id="invalid_msg" style="color: red;"><?=$invalid_msg;?></span>
                     </div>
-
                     <div class="btn-entrar">
                         <button class="button" type="submit">CADASTRAR</button>
                     </div>
